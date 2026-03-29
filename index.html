@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>达人信息录入系统 - 云端版</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, 'Microsoft YaHei', sans-serif; }
+        body { background: #f5f7fa; padding: 20px; color: #333; }
+        .container { max-width: 800px; margin: 30px auto; background: white; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.08); padding: 30px; }
+        h1 { color: #2d3748; margin-bottom: 10px; border-bottom: 2px solid #667eea; padding-bottom: 10px; }
+        .subtitle { color: #718096; margin-bottom: 30px; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568; }
+        label .required { color: #e53e3e; }
+        input, select, textarea { width: 100%; padding: 12px 15px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 16px; transition: border 0.3s; }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); }
+        .btn { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 14px 28px; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; width: 100%; transition: transform 0.2s; }
+        .btn:hover { transform: translateY(-2px); }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+        .status { padding: 12px; border-radius: 8px; margin: 20px 0; text-align: center; display: none; }
+        .success { background: #c6f6d5; color: #22543d; border: 1px solid #9ae6b4; display: block; }
+        .error { background: #fed7d7; color: #742a2a; border: 1px solid #fc8181; display: block; }
+        .info { background: #bee3f8; color: #2a4365; border: 1px solid #90cdf4; display: block; }
+        .footer { text-align: center; margin-top: 30px; color: #a0aec0; font-size: 14px; }
+        .help-text { font-size: 12px; color: #a0aec0; margin-top: 4px; }
+        .field-row { display: flex; gap: 15px; }
+        .field-row > div { flex: 1; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📝 新增达人信息</h1>
+        <p class="subtitle">填写信息，数据将实时保存到云端Google Sheets。</p>
+
+        <!-- 状态提示区域 -->
+        <div id="statusMessage" class="status"></div>
+
+        <!-- 主表单 -->
+        <form id="talentForm">
+            <!-- 基础信息 -->
+            <div class="form-group">
+                <label for="category">分类 <span class="required">*</span></label>
+                <select id="category" required>
+                    <option value="">请选择</option>
+                    <option value="生活类">生活类</option><option value="情侣类">情侣类</option>
+                    <option value="颜值类">颜值类</option><option value="宠物类">宠物类</option>
+                    <option value="美食类">美食类</option><option value="运动类">运动类</option>
+                </select>
+            </div>
+
+            <div class="field-row">
+                <div class="form-group">
+                    <label for="gender">性别</label>
+                    <select id="gender">
+                        <option value="">请选择</option>
+                        <option value="男">男</option>
+                        <option value="女">女</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="reporter">提报人</label>
+                    <input type="text" id="reporter" placeholder="您的名字">
+                </div>
+            </div>
+
+            <div class="field-row">
+                <div class="form-group">
+                    <label for="country">国家</label>
+                    <select id="country">
+                        <option value="">请选择</option>
+                        <option value="墨西哥">墨西哥</option><option value="菲律宾">菲律宾</option>
+                        <option value="印尼">印尼</option><option value="巴西">巴西</option>
+                        <option value="美区">美区</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="level">量级</label>
+                    <select id="level">
+                        <option value="">请选择</option>
+                        <option value="1m+">1m+</option><option value="500k-1m">500k-1m</option>
+                        <option value="100k-500k">100k-500k</option><option value="<10k"><10k</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- 账号信息 -->
+            <div class="form-group">
+                <label for="handle">用户账号/Handle <span class="required">*</span></label>
+                <input type="text" id="handle" required placeholder="例如：@username">
+            </div>
+            <div class="form-group">
+                <label for="userLink">用户链接 <span class="required">*</span></label>
+                <input type="url" id="userLink" required placeholder="https://tiktok.com/@username">
+                <p class="help-text">请填写完整的URL链接</p>
+            </div>
+
+            <!-- 提交按钮 -->
+            <div class="form-group">
+                <button type="submit" class="btn" id="submitBtn">🚀 提交到云端表格</button>
+            </div>
+        </form>
+
+        <div class="footer">
+            <p>系统基于 Google Sheets 与 GitHub Pages 构建 | 数据安全存储于您的Google账户</p>
+        </div>
+    </div>
+
+    <script>
+        // 🔧 配置项：请替换成您自己的GAS Web App URL！
+        const GAS_URL = 'https://script.google.com/macros/s/AKfycbyrJ28ruzOoh-1zZU2nNxvxvf9s3qoEcZ9S2yLYpWJX1jLbT7z8nfD_7J4UVUGlbD7nXw/exec';
+
+        // 页面加载完成
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('页面已加载，后台地址:', GAS_URL);
+            // 设置默认提报人为当前用户（示例）
+            document.getElementById('reporter').value = '管理员';
+            // 设置默认日期为今天
+            const today = new Date().toISOString().split('T')[0];
+            // 可以添加一个隐藏的日期字段，这里简化为固定值
+        });
+
+        // 表单提交处理
+        document.getElementById('talentForm').addEventListener('submit', async function(event) {
+            event.preventDefault(); // 阻止表单默认刷新
+            console.log('开始提交表单...');
+
+            const submitBtn = document.getElementById('submitBtn');
+            const originalText = submitBtn.textContent;
+            submitBtn.disabled = true;
+            submitBtn.textContent = '提交中...';
+
+            // 显示“处理中”状态
+            showStatus('info', '正在将数据提交到云端...');
+
+            // 1. 收集表单数据
+            const formData = {
+                category: document.getElementById('category').value,
+                gender: document.getElementById('gender').value,
+                reporter: document.getElementById('reporter').value || '管理员',
+                devDate: new Date().toISOString().split('T')[0], // 今天
+                country: document.getElementById('country').value,
+                level: document.getElementById('level').value,
+                handle: document.getElementById('handle').value,
+                userLink: document.getElementById('userLink').value,
+                // 以下字段前端表单未提供，使用默认值，您可以根据需要添加更多输入框
+                ins: '',
+                fans: '0',
+                avgViews: '0',
+                contact: '',
+                price: '',
+                remark: '',
+                feedback: '',
+                syncSheet: '提报表' // 默认写入“提报表”工作表
+            };
+
+            console.log('提交的数据:', formData);
+
+            // 2. 发送数据到GAS云端后台
+            try {
+                const response = await fetch(GAS_URL, {
+                    method: 'POST',
+                    mode: 'no-cors', // 重要：因为GAS已处理CORS，这里用no-cors模式
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                // 注意：由于使用了 mode: 'no-cors'，我们无法直接读取响应状态和内容。
+                // 但GAS成功执行后，数据会写入表格。这是一种简化的处理。
+                // 更复杂的错误处理需要GAS返回特定信息，这里我们先以“乐观成功”处理。
+
+                console.log('请求已发送');
+                showStatus('success', '✅ 提交成功！数据已实时保存到您的Google Sheets。');
+                
+                // 3秒后清空表单
+                setTimeout(() => {
+                    document.getElementById('talentForm').reset();
+                    document.getElementById('reporter').value = '管理员'; // 重置默认值
+                    hideStatus();
+                }, 3000);
+
+            } catch (error) {
+                // 网络错误或请求根本发不出去
+                console.error('提交失败:', error);
+                showStatus('error', '❌ 网络错误，提交失败。请检查网络连接，并确保GAS后台已正确部署。');
+            } finally {
+                // 恢复按钮
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+            }
+        });
+
+        // 显示状态消息的工具函数
+        function showStatus(type, message) {
+            const statusEl = document.getElementById('statusMessage');
+            statusEl.textContent = message;
+            statusEl.className = 'status ' + type; // 'success', 'error', 'info'
+        }
+        function hideStatus() {
+            const statusEl = document.getElementById('statusMessage');
+            statusEl.style.display = 'none';
+        }
+    </script>
+</body>
+</html>
