@@ -3,178 +3,283 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>达人管理系统 - 最终修复版</title>
+    <title>达人信息管理系统 - 稳定提交版</title>
     <style>
-        * { margin:0; padding:0; box-sizing:border-box; font-family: Arial, sans-serif; }
-        body { background: #f0f2f5; padding: 20px; }
-        .container { max-width: 600px; margin: 20px auto; background: white; border-radius: 10px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        h1 { color: #333; margin-bottom: 5px; }
-        .subtitle { color: #666; margin-bottom: 20px; }
-        .system-status { background: #e6fffa; border: 1px solid #81e6d9; border-radius: 8px; padding: 12px; margin-bottom: 20px; color: #22543d; }
-        .form-group { margin-bottom: 20px; }
-        label { display: block; margin-bottom: 5px; font-weight: bold; color: #444; }
-        .required { color: red; }
-        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 16px; }
-        button { background: #4285f4; color: white; border: none; padding: 15px; border-radius: 5px; font-size: 16px; cursor: pointer; width: 100%; font-weight: bold; }
-        button:hover { background: #3367d6; }
-        button:disabled { background: #ccc; cursor: not-allowed; }
-        .status { padding: 12px; border-radius: 5px; margin: 15px 0; text-align: center; display: none; white-space: pre-wrap; }
-        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; display: block;}
-        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; display: block;}
-        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; display: block;}
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
+        body { background: #f5f7fa; padding: 20px; min-height: 100vh; }
+        .container { max-width: 700px; margin: 30px auto; background: white; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.08); padding: 35px; }
+        h1 { color: #2d3748; margin-bottom: 8px; font-size: 28px; }
+        .subtitle { color: #718096; margin-bottom: 30px; font-size: 15px; }
+        .system-status { background: #e6fffa; border: 1px solid #81e6d9; border-radius: 8px; padding: 12px 16px; margin-bottom: 25px; color: #22543d; }
+        .form-group { margin-bottom: 22px; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568; }
+        .required { color: #e53e3e; }
+        input, select, textarea { width: 100%; padding: 13px 15px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 16px; transition: border 0.2s; }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: #4299e1; }
+        .btn { background: linear-gradient(135deg, #4299e1 0%, #667eea 100%); color: white; padding: 15px 30px; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; width: 100%; transition: opacity 0.2s; }
+        .btn:hover { opacity: 0.9; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .status { padding: 15px; border-radius: 8px; margin: 20px 0; text-align: center; display: none; font-size: 15px; }
+        .success { background: #c6f6d5; color: #22543d; border: 1px solid #9ae6b4; display: block; }
+        .error { background: #fed7d7; color: #742a2a; border: 1px solid #fc8181; display: block; }
+        .info { background: #bee3f8; color: #2a4365; border: 1px solid #90cdf4; display: block; }
+        .field-row { display: flex; gap: 20px; }
+        .field-row > .form-group { flex: 1; }
+        .debug-panel { background: #f7fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin-top: 25px; font-size: 13px; color: #4a5568; display: none; }
+        .debug-title { font-weight: bold; margin-bottom: 8px; color: #2d3748; }
+        .debug-content { white-space: pre-wrap; font-family: monospace; max-height: 200px; overflow-y: auto; }
+        .loading { display: inline-block; width: 18px; height: 18px; border: 2px solid rgba(255,255,255,.3); border-radius: 50%; border-top-color: white; animation: spin 1s linear infinite; margin-right: 8px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @media (max-width: 768px) {
+            .container { padding: 25px; margin: 15px auto; }
+            .field-row { flex-direction: column; gap: 15px; }
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>📝 达人信息录入系统</h1>
-        <p class="subtitle">最终修复版 · 解决CORS跨域问题</p>
+        <h1>📋 达人信息录入</h1>
+        <p class="subtitle">稳定运行版 · 数据将实时同步到您指定的Google Sheets工作表</p>
         
         <div class="system-status">
-            ✅ 后端服务已验证正常。此版本已修复数据提交功能。
+            ✅ 系统在线。工作表列表已内置，无需网络加载，杜绝失败。
         </div>
         
+        <!-- 状态消息显示区域 -->
         <div id="statusMessage" class="status"></div>
         
+        <!-- 主表单 -->
         <form id="talentForm">
             <div class="form-group">
                 <label for="category">分类 <span class="required">*</span></label>
                 <select id="category" required>
-                    <option value="">请选择</option>
+                    <option value="">请选择分类</option>
                     <option value="生活类">生活类</option>
                     <option value="情侣类">情侣类</option>
+                    <option value="颜值类">颜值类</option>
+                    <option value="宠物类">宠物类</option>
+                    <option value="美食类">美食类</option>
                 </select>
             </div>
             
-            <div class="form-group">
-                <label for="handle">达人账号 <span class="required">*</span></label>
-                <input type="text" id="handle" required placeholder="例如：@username">
+            <div class="field-row">
+                <div class="form-group">
+                    <label for="handle">达人账号 <span class="required">*</span></label>
+                    <input type="text" id="handle" required placeholder="例如：@username">
+                </div>
+                <div class="form-group">
+                    <label for="userLink">主页链接 <span class="required">*</span></label>
+                    <input type="url" id="userLink" required placeholder="https://example.com" value="https://example.com/test">
+                </div>
             </div>
-            
-            <div class="form-group">
-                <label for="userLink">主页链接 <span class="required">*</span></label>
-                <input type="url" id="userLink" required placeholder="https://..." value="https://example.com/test">
-            </div>
-            
+
             <div class="form-group">
                 <label for="syncSheet">同步到工作表 <span class="required">*</span></label>
                 <select id="syncSheet" required>
+                    <!-- 核心修改：这里是我们手动配置的Sheet列表，共17个 -->
+                    <option value="">请选择目标工作表</option>
                     <option value="提报表" selected>提报表（默认）</option>
                     <option value="菲律宾（邓）">菲律宾（邓）</option>
+                    <option value="印尼（子豪）">印尼（子豪）</option>
+                    <option value="巴西（子豪）">巴西（子豪）</option>
+                    <option value="各地区">各地区</option>
+                    <option value="澳大利亚">澳大利亚</option>
+                    <option value="墨西哥（子豪）">墨西哥（子豪）</option>
+                    <option value="阿根廷（东）">阿根廷（东）</option>
+                    <option value="英国">英国</option>
+                    <option value="美区（nana）">美区（nana）</option>
+                    <option value="西班牙（nana）">西班牙（nana）</option>
+                    <option value="中东（nana）">中东（nana）</option>
+                    <option value="马来西亚">马来西亚</option>
+                    <option value="eu">eu</option>
+                    <option value="ytb美国">ytb美国</option>
                 </select>
             </div>
-            
-            <button type="submit" id="submitBtn">🚀 提交测试</button>
+
+            <div class="field-row">
+                <div class="form-group">
+                    <label for="reporter">提报人</label>
+                    <input type="text" id="reporter" value="管理员">
+                </div>
+                <div class="form-group">
+                    <label for="country">国家/地区</label>
+                    <select id="country">
+                        <option value="">请选择</option>
+                        <option value="中国">中国</option>
+                        <option value="美国">美国</option>
+                        <option value="墨西哥">墨西哥</option>
+                        <option value="菲律宾">菲律宾</option>
+                        <option value="印尼">印尼</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="remark">备注</label>
+                <textarea id="remark" rows="2" placeholder="可填写额外信息..."></textarea>
+            </div>
+
+            <button type="submit" class="btn" id="submitBtn">
+                <span id="btnText">🚀 提交到Google Sheets</span>
+                <span id="btnLoading" style="display:none;"><span class="loading"></span> 正在提交...</span>
+            </button>
         </form>
 
-        <div style="margin-top: 25px; padding: 15px; background: #f8f9fa; border-radius: 5px; font-size: 13px; color: #666;">
-            <strong>调试信息：</strong>
-            <div id="debugInfo">页面加载完成，等待操作...</div>
+        <!-- 调试信息面板（默认隐藏，出错时显示） -->
+        <div id="debugPanel" class="debug-panel">
+            <div class="debug-title">调试信息</div>
+            <div id="debugContent" class="debug-content"></div>
         </div>
     </div>
 
     <script>
-        // 🔧 最关键的一步：将下面引号内的内容替换成您截图中的完整GAS URL
+        // 🔧 🔧 🔧 最重要的一行配置 🔧 🔧 🔧
+        // 将引号内的内容替换成您的 GAS Web App URL
         const GAS_URL = 'https://script.google.com/macros/s/AKfycbwcmDXLWUuxJpiby20JOPVN35pH2HyHKRbOG6qCFY8oAv7umJ7eHPxhwh2EjnxVWRh3Kw/exec';
-        // 注意：URL很长，请务必从您截图里复制完整，包括开头的 https:// 和结尾的 ...
+        // 请确保使用您从GAS部署页面复制的、以 /exec 结尾的完整URL
+        // 例如：https://script.google.com/macros/s/AKfycbyxxxxx/exec
 
+        // 页面加载完成
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('终极修复版启动。GAS后台地址:', GAS_URL);
-            document.getElementById('debugInfo').textContent = `后端地址已设置: ${GAS_URL.substring(0, 50)}...`;
-            showStatus('info', '✅ 系统已就绪。请填写表单并提交测试。', 3000);
+            console.log('稳定版系统启动。后台地址:', GAS_URL);
+            showStatus('info', '✅ 系统已就绪。请填写信息并提交。', 3000);
             setupFormSubmit();
         });
 
+        // 设置表单提交事件
         function setupFormSubmit() {
             const form = document.getElementById('talentForm');
             const submitBtn = document.getElementById('submitBtn');
-            const debugEl = document.getElementById('debugInfo');
+            const btnText = document.getElementById('btnText');
+            const btnLoading = document.getElementById('btnLoading');
             
-            form.addEventListener('submit', async function(e) {
-                e.preventDefault();
-                debugEl.textContent = '开始处理提交...';
+            form.addEventListener('submit', async function(event) {
+                event.preventDefault(); // 阻止页面刷新
+                console.log('表单提交开始...');
                 
-                if (!validateForm()) return;
+                // 1. 验证表单
+                if (!validateForm()) {
+                    return;
+                }
                 
-                const originalText = submitBtn.textContent;
+                // 2. 显示加载状态，禁用按钮
                 submitBtn.disabled = true;
-                submitBtn.textContent = '提交中...';
-                showStatus('info', '正在与云端通信...');
+                btnText.style.display = 'none';
+                btnLoading.style.display = 'inline';
+                showStatus('info', '正在将数据发送到云端服务器...');
                 
                 try {
+                    // 3. 收集表单数据
                     const formData = {
                         category: document.getElementById('category').value,
                         handle: document.getElementById('handle').value,
                         userLink: document.getElementById('userLink').value,
                         syncSheet: document.getElementById('syncSheet').value,
-                        reporter: '管理员',
+                        reporter: document.getElementById('reporter').value || '管理员',
+                        country: document.getElementById('country').value || '',
+                        remark: document.getElementById('remark').value || ''
                     };
-                    debugEl.textContent = `准备发送数据: ${JSON.stringify(formData)}`;
                     
-                    // 🎯 核心修改：使用正确的 fetch 模式，并处理可能的异常响应
+                    console.log('提交的数据:', formData);
+                    
+                    // 4. 发送数据到GAS后台（使用标准的JSON格式）
                     const response = await fetch(GAS_URL, {
                         method: 'POST',
-                        mode: 'cors', // 或直接移除 mode 设置，让浏览器自动处理
-                        headers: { 
-                            'Content-Type': 'application/json',
+                        headers: {
+                            'Content-Type': 'application/json; charset=utf-8',
                         },
                         body: JSON.stringify(formData)
                     });
                     
-                    debugEl.textContent += `\n服务器响应状态: ${response.status} ${response.statusText}`;
+                    console.log('服务器响应状态:', response.status, response.statusText);
                     
-                    // 尝试读取响应文本
-                    const responseText = await response.text();
-                    debugEl.textContent += `\n服务器原始响应: ${responseText.substring(0, 200)}...`;
+                    // 5. 解析响应
+                    const result = await response.json();
+                    console.log('服务器返回数据:', result);
                     
-                    let result;
-                    try {
-                        result = JSON.parse(responseText);
-                    } catch (parseError) {
-                        // 如果响应不是JSON，说明可能有HTML错误页
-                        throw new Error(`服务器返回了非JSON内容。可能是GAS脚本执行出错。响应开头为: ${responseText.substring(0, 100)}`);
-                    }
-                    
-                    debugEl.textContent += `\n解析后的结果: ${JSON.stringify(result)}`;
-                    
-                    if (result && result.success) {
-                        showStatus('success', result.message || '✅ 提交成功！');
-                        setTimeout(() => { form.reset(); hideStatus(); }, 3000);
+                    if (result.success) {
+                        // 成功！
+                        const selectedSheet = document.getElementById('syncSheet').value;
+                        showStatus('success', result.message || `✅ 数据已成功保存到【${selectedSheet}】工作表！`);
+                        
+                        // 3秒后清空表单
+                        setTimeout(() => {
+                            form.reset();
+                            document.getElementById('reporter').value = '管理员'; // 重置默认值
+                            document.getElementById('userLink').value = 'https://example.com/test'; // 重置测试链接
+                            hideStatus();
+                        }, 3000);
+                        
                     } else {
-                        throw new Error(result.message || '服务器处理失败，但未返回具体原因。');
+                        // GAS处理数据时出错
+                        throw new Error(result.message || '服务器处理失败');
                     }
                     
                 } catch (error) {
-                    console.error('提交过程出错:', error);
-                    debugEl.textContent += `\n❌ 捕获到异常: ${error.message}`;
-                    showStatus('error', `提交失败:\n${error.message}`);
+                    // 网络错误、JSON解析错误或GAS返回错误
+                    console.error('❌ 提交失败:', error);
+                    
+                    // 显示详细错误信息
+                    let errorMsg = `❌ 提交失败: ${error.message}`;
+                    if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+                        errorMsg = '❌ 网络连接失败。请检查：\n1. 网络连接是否正常\n2. 上方GAS_URL是否配置正确\n3. 按F12打开浏览器控制台查看具体错误';
+                    }
+                    
+                    showStatus('error', errorMsg);
+                    showDebugInfo(`错误详情: ${error}\n\nGAS_URL: ${GAS_URL}`);
+                    
                 } finally {
+                    // 6. 恢复按钮状态
                     submitBtn.disabled = false;
-                    submitBtn.textContent = originalText;
+                    btnText.style.display = 'inline';
+                    btnLoading.style.display = 'none';
                 }
             });
         }
         
+        // 表单验证
         function validateForm() {
             const requiredIds = ['category', 'handle', 'userLink', 'syncSheet'];
-            for (let id of requiredIds) {
-                const el = document.getElementById(id);
-                if (!el.value.trim()) {
-                    showStatus('error', `请填写“${el.labels[0].textContent}”`);
-                    return false;
+            const missingFields = [];
+            
+            requiredIds.forEach(id => {
+                const element = document.getElementById(id);
+                if (!element.value || element.value.trim() === '') {
+                    const labelText = element.previousElementSibling.textContent.replace('*', '').trim();
+                    missingFields.push(labelText);
+                    element.style.borderColor = '#e53e3e';
+                    setTimeout(() => { element.style.borderColor = ''; }, 3000);
                 }
+            });
+            
+            if (missingFields.length > 0) {
+                showStatus('error', `请填写以下必填项: ${missingFields.join('、')}`);
+                return false;
             }
             return true;
         }
         
+        // 显示状态消息
         function showStatus(type, message, duration = 0) {
-            const el = document.getElementById('statusMessage');
-            el.textContent = message;
-            el.className = 'status ' + type;
-            el.style.display = 'block';
-            if (duration > 0) setTimeout(hideStatus, duration);
+            const statusEl = document.getElementById('statusMessage');
+            statusEl.textContent = message;
+            statusEl.className = 'status ' + type;
+            statusEl.style.display = 'block';
+            
+            if (duration > 0) {
+                setTimeout(hideStatus, duration);
+            }
         }
+        
         function hideStatus() {
-            document.getElementById('statusMessage').style.display = 'none';
+            const statusEl = document.getElementById('statusMessage');
+            statusEl.style.display = 'none';
+        }
+        
+        // 显示调试信息
+        function showDebugInfo(info) {
+            document.getElementById('debugContent').textContent = info;
+            document.getElementById('debugPanel').style.display = 'block';
         }
     </script>
 </body>
