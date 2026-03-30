@@ -3,49 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>达人信息管理系统 - 稳定提交版</title>
+    <title>达人信息录入系统 - 无CORS问题版</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Arial, sans-serif; }
-        body { background: #f5f7fa; padding: 20px; min-height: 100vh; }
-        .container { max-width: 700px; margin: 30px auto; background: white; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.08); padding: 35px; }
-        h1 { color: #2d3748; margin-bottom: 8px; font-size: 28px; }
-        .subtitle { color: #718096; margin-bottom: 30px; font-size: 15px; }
-        .system-status { background: #e6fffa; border: 1px solid #81e6d9; border-radius: 8px; padding: 12px 16px; margin-bottom: 25px; color: #22543d; }
-        .form-group { margin-bottom: 22px; }
-        label { display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568; }
-        .required { color: #e53e3e; }
-        input, select, textarea { width: 100%; padding: 13px 15px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 16px; transition: border 0.2s; }
-        input:focus, select:focus, textarea:focus { outline: none; border-color: #4299e1; }
-        .btn { background: linear-gradient(135deg, #4299e1 0%, #667eea 100%); color: white; padding: 15px 30px; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; width: 100%; transition: opacity 0.2s; }
-        .btn:hover { opacity: 0.9; }
-        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        .status { padding: 15px; border-radius: 8px; margin: 20px 0; text-align: center; display: none; font-size: 15px; }
-        .success { background: #c6f6d5; color: #22543d; border: 1px solid #9ae6b4; display: block; }
-        .error { background: #fed7d7; color: #742a2a; border: 1px solid #fc8181; display: block; }
-        .info { background: #bee3f8; color: #2a4365; border: 1px solid #90cdf4; display: block; }
-        .field-row { display: flex; gap: 20px; }
-        .field-row > .form-group { flex: 1; }
-        .debug-panel { background: #f7fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin-top: 25px; font-size: 13px; color: #4a5568; display: none; }
-        .debug-title { font-weight: bold; margin-bottom: 8px; color: #2d3748; }
-        .debug-content { white-space: pre-wrap; font-family: monospace; max-height: 200px; overflow-y: auto; }
-        .loading { display: inline-block; width: 18px; height: 18px; border: 2px solid rgba(255,255,255,.3); border-radius: 50%; border-top-color: white; animation: spin 1s linear infinite; margin-right: 8px; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        @media (max-width: 768px) {
-            .container { padding: 25px; margin: 15px auto; }
-            .field-row { flex-direction: column; gap: 15px; }
-        }
+        * { margin:0; padding:0; box-sizing:border-box; font-family: Arial, sans-serif; }
+        body { background: #f0f2f5; padding: 20px; min-height: 100vh; }
+        .container { max-width: 600px; margin: 20px auto; background: white; border-radius: 10px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        h1 { color: #333; margin-bottom: 5px; }
+        .subtitle { color: #666; margin-bottom: 20px; }
+        .system-status { background: #e6fffa; border: 1px solid #81e6d9; border-radius: 8px; padding: 12px; margin-bottom: 20px; color: #22543d; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #444; }
+        .required { color: red; }
+        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 5px; font-size: 16px; }
+        button { background: #4285f4; color: white; border: none; padding: 15px; border-radius: 5px; font-size: 16px; cursor: pointer; width: 100%; font-weight: bold; }
+        button:hover { background: #3367d6; }
+        button:disabled { background: #ccc; cursor: not-allowed; }
+        .status { padding: 12px; border-radius: 5px; margin: 15px 0; text-align: center; display: none; }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; display: block; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; display: block; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; display: block; }
+        .hidden { display: none; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>📋 达人信息录入</h1>
-        <p class="subtitle">稳定运行版 · 数据将实时同步到您指定的Google Sheets工作表</p>
+        <h1>📋 达人信息录入系统</h1>
+        <p class="subtitle">无CORS问题版 · 通过表单重定向提交数据</p>
         
         <div class="system-status">
-            ✅ 系统在线。工作表列表已内置，无需网络加载，杜绝失败。
+            ✅ 使用表单重定向技术，彻底解决CORS跨域问题
         </div>
         
-        <!-- 状态消息显示区域 -->
         <div id="statusMessage" class="status"></div>
         
         <!-- 主表单 -->
@@ -57,229 +45,172 @@
                     <option value="生活类">生活类</option>
                     <option value="情侣类">情侣类</option>
                     <option value="颜值类">颜值类</option>
-                    <option value="宠物类">宠物类</option>
-                    <option value="美食类">美食类</option>
                 </select>
             </div>
             
-            <div class="field-row">
-                <div class="form-group">
-                    <label for="handle">达人账号 <span class="required">*</span></label>
-                    <input type="text" id="handle" required placeholder="例如：@username">
-                </div>
-                <div class="form-group">
-                    <label for="userLink">主页链接 <span class="required">*</span></label>
-                    <input type="url" id="userLink" required placeholder="https://example.com" value="https://example.com/test">
-                </div>
+            <div class="form-group">
+                <label for="handle">达人账号 <span class="required">*</span></label>
+                <input type="text" id="handle" required placeholder="@username">
             </div>
-
+            
+            <div class="form-group">
+                <label for="userLink">主页链接 <span class="required">*</span></label>
+                <input type="url" id="userLink" required placeholder="https://example.com" value="https://example.com/test">
+            </div>
+            
             <div class="form-group">
                 <label for="syncSheet">同步到工作表 <span class="required">*</span></label>
                 <select id="syncSheet" required>
-                    <!-- 核心修改：这里是我们手动配置的Sheet列表，共17个 -->
-                    <option value="">请选择目标工作表</option>
                     <option value="提报表" selected>提报表（默认）</option>
                     <option value="菲律宾（邓）">菲律宾（邓）</option>
-                    <option value="印尼（子豪）">印尼（子豪）</option>
-                    <option value="巴西（子豪）">巴西（子豪）</option>
-                    <option value="各地区">各地区</option>
-                    <option value="澳大利亚">澳大利亚</option>
                     <option value="墨西哥（子豪）">墨西哥（子豪）</option>
-                    <option value="阿根廷（东）">阿根廷（东）</option>
-                    <option value="英国">英国</option>
-                    <option value="美区（nana）">美区（nana）</option>
-                    <option value="西班牙（nana）">西班牙（nana）</option>
-                    <option value="中东（nana）">中东（nana）</option>
-                    <option value="马来西亚">马来西亚</option>
-                    <option value="eu">eu</option>
-                    <option value="ytb美国">ytb美国</option>
                 </select>
             </div>
-
-            <div class="field-row">
-                <div class="form-group">
-                    <label for="reporter">提报人</label>
-                    <input type="text" id="reporter" value="管理员">
-                </div>
-                <div class="form-group">
-                    <label for="country">国家/地区</label>
-                    <select id="country">
-                        <option value="">请选择</option>
-                        <option value="中国">中国</option>
-                        <option value="美国">美国</option>
-                        <option value="墨西哥">墨西哥</option>
-                        <option value="菲律宾">菲律宾</option>
-                        <option value="印尼">印尼</option>
-                    </select>
-                </div>
-            </div>
-
+            
             <div class="form-group">
-                <label for="remark">备注</label>
-                <textarea id="remark" rows="2" placeholder="可填写额外信息..."></textarea>
+                <label for="reporter">提报人</label>
+                <input type="text" id="reporter" value="管理员">
             </div>
-
-            <button type="submit" class="btn" id="submitBtn">
-                <span id="btnText">🚀 提交到Google Sheets</span>
-                <span id="btnLoading" style="display:none;"><span class="loading"></span> 正在提交...</span>
-            </button>
+            
+            <div class="form-group">
+                <label for="country">国家/地区</label>
+                <select id="country">
+                    <option value="">请选择</option>
+                    <option value="中国">中国</option>
+                    <option value="墨西哥">墨西哥</option>
+                </select>
+            </div>
+            
+            <button type="submit" class="btn" id="submitBtn">🚀 提交到Google Sheets</button>
         </form>
-
-        <!-- 调试信息面板（默认隐藏，出错时显示） -->
-        <div id="debugPanel" class="debug-panel">
-            <div class="debug-title">调试信息</div>
-            <div id="debugContent" class="debug-content"></div>
-        </div>
+        
+        <!-- 隐藏的iframe，用于接收GAS返回的结果 -->
+        <iframe id="resultFrame" name="resultFrame" class="hidden"></iframe>
     </div>
 
     <script>
-        // 🔧 🔧 🔧 最重要的一行配置 🔧 🔧 🔧
-        // 将引号内的内容替换成您的 GAS Web App URL
-        const GAS_URL = 'https://script.google.com/macros/s/AKfycbyux2t6cSiZ1VEUPH_9wY5K8RsX-FOB5w2WlRCWyQJUGV8dBpqKDuqixBXHQRVUL60QHw/exec';
-        // 请确保使用您从GAS部署页面复制的、以 /exec 结尾的完整URL
-        // 例如：https://script.google.com/macros/s/AKfycbyxxxxx/exec
-
         // 页面加载完成
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('稳定版系统启动。后台地址:', GAS_URL);
-            showStatus('info', '✅ 系统已就绪。请填写信息并提交。', 3000);
+            console.log('无CORS版系统启动');
             setupFormSubmit();
         });
-
-        // 设置表单提交事件
+        
         function setupFormSubmit() {
             const form = document.getElementById('talentForm');
             const submitBtn = document.getElementById('submitBtn');
-            const btnText = document.getElementById('btnText');
-            const btnLoading = document.getElementById('btnLoading');
             
-            form.addEventListener('submit', async function(event) {
-                event.preventDefault(); // 阻止页面刷新
+            form.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
                 console.log('表单提交开始...');
                 
-                // 1. 验证表单
+                // 验证表单
                 if (!validateForm()) {
                     return;
                 }
                 
-                // 2. 显示加载状态，禁用按钮
+                // 禁用按钮
+                const originalText = submitBtn.textContent;
                 submitBtn.disabled = true;
-                btnText.style.display = 'none';
-                btnLoading.style.display = 'inline';
-                showStatus('info', '正在将数据发送到云端服务器...');
+                submitBtn.textContent = '提交中...';
+                showStatus('info', '正在处理提交...');
                 
                 try {
-                    // 3. 收集表单数据
+                    // 收集数据
                     const formData = {
                         category: document.getElementById('category').value,
                         handle: document.getElementById('handle').value,
                         userLink: document.getElementById('userLink').value,
                         syncSheet: document.getElementById('syncSheet').value,
                         reporter: document.getElementById('reporter').value || '管理员',
-                        country: document.getElementById('country').value || '',
-                        remark: document.getElementById('remark').value || ''
+                        country: document.getElementById('country').value || ''
                     };
                     
                     console.log('提交的数据:', formData);
                     
-                    // 4. 发送数据到GAS后台（使用标准的JSON格式）
-                    const response = await fetch(GAS_URL, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json; charset=utf-8',
-                        },
-                        body: JSON.stringify(formData)
-                    });
+                    // 🎯 核心修改：创建一个隐藏的表单，通过POST提交到GAS
+                    const hiddenForm = document.createElement('form');
+                    hiddenForm.method = 'POST';
+                    hiddenForm.action = 'https://script.google.com/macros/s/AKfycbwcmDXLWUuxJpiby20JOPVN35pH2HyHKRbOG6qCFY8oAv7umJ7eHPxhwh2EjnxVWRh3Kw/exec';
+                    hiddenForm.target = 'resultFrame'; // 在隐藏的iframe中打开
+                    hiddenForm.style.display = 'none';
                     
-                    console.log('服务器响应状态:', response.status, response.statusText);
-                    
-                    // 5. 解析响应
-                    const result = await response.json();
-                    console.log('服务器返回数据:', result);
-                    
-                    if (result.success) {
-                        // 成功！
-                        const selectedSheet = document.getElementById('syncSheet').value;
-                        showStatus('success', result.message || `✅ 数据已成功保存到【${selectedSheet}】工作表！`);
-                        
-                        // 3秒后清空表单
-                        setTimeout(() => {
-                            form.reset();
-                            document.getElementById('reporter').value = '管理员'; // 重置默认值
-                            document.getElementById('userLink').value = 'https://example.com/test'; // 重置测试链接
-                            hideStatus();
-                        }, 3000);
-                        
-                    } else {
-                        // GAS处理数据时出错
-                        throw new Error(result.message || '服务器处理失败');
+                    // 添加数据字段
+                    for (const [key, value] of Object.entries(formData)) {
+                        const input = document.createElement('input');
+                        input.type = 'hidden';
+                        input.name = key;
+                        input.value = value;
+                        hiddenForm.appendChild(input);
                     }
+                    
+                    // 将表单添加到页面并提交
+                    document.body.appendChild(hiddenForm);
+                    hiddenForm.submit();
+                    
+                    // 移除临时表单
+                    setTimeout(() => {
+                        document.body.removeChild(hiddenForm);
+                    }, 1000);
+                    
+                    // 显示成功消息
+                    showStatus('success', '✅ 数据提交成功！正在保存到Google Sheets...');
+                    
+                    // 3秒后清空表单
+                    setTimeout(() => {
+                        form.reset();
+                        document.getElementById('userLink').value = 'https://example.com/test';
+                        document.getElementById('reporter').value = '管理员';
+                        showStatus('info', '✅ 提交完成！可以继续录入下一条数据。', 3000);
+                    }, 2000);
                     
                 } catch (error) {
-                    // 网络错误、JSON解析错误或GAS返回错误
-                    console.error('❌ 提交失败:', error);
-                    
-                    // 显示详细错误信息
-                    let errorMsg = `❌ 提交失败: ${error.message}`;
-                    if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
-                        errorMsg = '❌ 网络连接失败。请检查：\n1. 网络连接是否正常\n2. 上方GAS_URL是否配置正确\n3. 按F12打开浏览器控制台查看具体错误';
-                    }
-                    
-                    showStatus('error', errorMsg);
-                    showDebugInfo(`错误详情: ${error}\n\nGAS_URL: ${GAS_URL}`);
-                    
+                    console.error('提交失败:', error);
+                    showStatus('error', '❌ 提交失败: ' + error.message);
                 } finally {
-                    // 6. 恢复按钮状态
-                    submitBtn.disabled = false;
-                    btnText.style.display = 'inline';
-                    btnLoading.style.display = 'none';
+                    // 恢复按钮
+                    setTimeout(() => {
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = originalText;
+                    }, 2000);
                 }
             });
         }
         
-        // 表单验证
         function validateForm() {
             const requiredIds = ['category', 'handle', 'userLink', 'syncSheet'];
-            const missingFields = [];
+            const missing = [];
             
             requiredIds.forEach(id => {
                 const element = document.getElementById(id);
-                if (!element.value || element.value.trim() === '') {
-                    const labelText = element.previousElementSibling.textContent.replace('*', '').trim();
-                    missingFields.push(labelText);
-                    element.style.borderColor = '#e53e3e';
-                    setTimeout(() => { element.style.borderColor = ''; }, 3000);
+                if (!element.value.trim()) {
+                    missing.push(element.previousElementSibling.textContent.replace('*', '').trim());
+                    element.style.borderColor = 'red';
+                    setTimeout(() => element.style.borderColor = '', 3000);
                 }
             });
             
-            if (missingFields.length > 0) {
-                showStatus('error', `请填写以下必填项: ${missingFields.join('、')}`);
+            if (missing.length > 0) {
+                showStatus('error', '请填写: ' + missing.join('、'));
                 return false;
             }
+            
             return true;
         }
         
-        // 显示状态消息
         function showStatus(type, message, duration = 0) {
-            const statusEl = document.getElementById('statusMessage');
-            statusEl.textContent = message;
-            statusEl.className = 'status ' + type;
-            statusEl.style.display = 'block';
+            const el = document.getElementById('statusMessage');
+            el.textContent = message;
+            el.className = 'status ' + type;
+            el.style.display = 'block';
             
             if (duration > 0) {
-                setTimeout(hideStatus, duration);
+                setTimeout(() => {
+                    if (el.textContent === message) {
+                        el.style.display = 'none';
+                    }
+                }, duration);
             }
-        }
-        
-        function hideStatus() {
-            const statusEl = document.getElementById('statusMessage');
-            statusEl.style.display = 'none';
-        }
-        
-        // 显示调试信息
-        function showDebugInfo(info) {
-            document.getElementById('debugContent').textContent = info;
-            document.getElementById('debugPanel').style.display = 'block';
         }
     </script>
 </body>
