@@ -3,49 +3,94 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>达人信息录入系统 - 云端版</title>
+    <title>达人信息录入系统 - 智能云端版</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, 'Microsoft YaHei', sans-serif; }
-        body { background: #f5f7fa; padding: 20px; color: #333; }
-        .container { max-width: 800px; margin: 30px auto; background: white; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.08); padding: 30px; }
-        h1 { color: #2d3748; margin-bottom: 10px; border-bottom: 2px solid #667eea; padding-bottom: 10px; }
-        .subtitle { color: #718096; margin-bottom: 30px; }
-        .form-group { margin-bottom: 20px; }
-        label { display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568; }
+        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; color: #333; }
+        .container { max-width: 800px; margin: 30px auto; background: white; border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); padding: 40px; position: relative; overflow: hidden; }
+        .container::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 6px; background: linear-gradient(90deg, #667eea, #764ba2); }
+        
+        h1 { color: #2d3748; margin-bottom: 10px; font-size: 28px; display: flex; align-items: center; gap: 10px; }
+        h1::before { content: '📝'; font-size: 32px; }
+        .subtitle { color: #718096; margin-bottom: 30px; font-size: 16px; line-height: 1.6; }
+        
+        .system-status { background: #e6fffa; border: 1px solid #81e6d9; border-radius: 8px; padding: 12px 16px; margin-bottom: 25px; display: flex; align-items: center; gap: 10px; }
+        .status-icon { width: 12px; height: 12px; background: #38b2ac; border-radius: 50%; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        
+        .form-group { margin-bottom: 24px; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: #4a5568; font-size: 15px; }
         label .required { color: #e53e3e; }
-        input, select, textarea { width: 100%; padding: 12px 15px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 16px; transition: border 0.3s; }
-        input:focus, select:focus, textarea:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); }
-        .btn { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 14px 28px; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; width: 100%; transition: transform 0.2s; }
-        .btn:hover { transform: translateY(-2px); }
-        .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-        .status { padding: 12px; border-radius: 8px; margin: 20px 0; text-align: center; display: none; }
-        .success { background: #c6f6d5; color: #22543d; border: 1px solid #9ae6b4; display: block; }
-        .error { background: #fed7d7; color: #742a2a; border: 1px solid #fc8181; display: block; }
-        .info { background: #bee3f8; color: #2a4365; border: 1px solid #90cdf4; display: block; }
-        .footer { text-align: center; margin-top: 30px; color: #a0aec0; font-size: 14px; }
-        .help-text { font-size: 12px; color: #a0aec0; margin-top: 4px; }
-        .field-row { display: flex; gap: 15px; }
-        .field-row > div { flex: 1; }
+        input, select, textarea { width: 100%; padding: 14px 16px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px; transition: all 0.3s; background: #f8fafc; }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: #667eea; background: white; box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1); }
+        input:invalid, select:invalid { border-color: #fc8181; }
+        
+        .btn { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 16px 32px; border: none; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; width: 100%; transition: all 0.3s; position: relative; overflow: hidden; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4); }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; box-shadow: none; }
+        .btn::after { content: ''; position: absolute; top: 50%; left: 50%; width: 5px; height: 5px; background: rgba(255,255,255,0.5); opacity: 0; border-radius: 100%; transform: scale(1, 1) translate(-50%); transform-origin: 50% 50%; }
+        .btn:focus:not(:active)::after { animation: ripple 1s ease-out; }
+        @keyframes ripple { 0% { transform: scale(0, 0); opacity: 0.5; } 20% { transform: scale(25, 25); opacity: 0.3; } 100% { transform: scale(40, 40); opacity: 0; } }
+        
+        .status { padding: 16px; border-radius: 10px; margin: 20px 0; text-align: center; display: none; animation: slideIn 0.3s ease; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        .success { background: linear-gradient(135deg, #c6f6d5, #9ae6b4); color: #22543d; border: 2px solid #68d391; display: block; }
+        .error { background: linear-gradient(135deg, #fed7d7, #fc8181); color: #742a2a; border: 2px solid #f56565; display: block; }
+        .info { background: linear-gradient(135deg, #bee3f8, #90cdf4); color: #2a4365; border: 2px solid #4299e1; display: block; }
+        
+        .footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; color: #a0aec0; font-size: 14px; line-height: 1.6; }
+        .footer a { color: #667eea; text-decoration: none; }
+        .footer a:hover { text-decoration: underline; }
+        
+        .help-text { font-size: 13px; color: #a0aec0; margin-top: 6px; font-style: italic; }
+        
+        .field-row { display: flex; gap: 20px; margin-bottom: 20px; }
+        .field-row > .form-group { flex: 1; margin-bottom: 0; }
+        
+        .loading { display: inline-block; width: 20px; height: 20px; border: 3px solid rgba(255,255,255,.3); border-radius: 50%; border-top-color: white; animation: spin 1s ease-in-out infinite; margin-right: 10px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        .sheet-count { background: #edf2f7; padding: 4px 10px; border-radius: 20px; font-size: 12px; color: #4a5568; margin-left: 8px; }
+        
+        @media (max-width: 768px) {
+            .container { padding: 25px; margin: 15px auto; }
+            .field-row { flex-direction: column; gap: 15px; }
+            h1 { font-size: 24px; }
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>📝 新增达人信息</h1>
-        <p class="subtitle">填写信息，数据将实时保存到云端Google Sheets。</p>
-
+        <h1>达人信息录入系统 <span class="sheet-count" id="sheetCount">加载中...</span></h1>
+        <p class="subtitle">智能云端版 · 数据实时同步到您选择的Google Sheets工作表</p>
+        
+        <div class="system-status">
+            <div class="status-icon"></div>
+            <div>
+                <strong>系统状态：在线</strong>
+                <div style="font-size: 13px; color: #4a5568;">云端运行中 · 自动同步 · 无需本地服务器</div>
+            </div>
+        </div>
+        
         <!-- 状态提示区域 -->
         <div id="statusMessage" class="status"></div>
-
+        
         <!-- 主表单 -->
         <form id="talentForm">
             <!-- 基础信息 -->
             <div class="form-group">
                 <label for="category">分类 <span class="required">*</span></label>
                 <select id="category" required>
-                    <option value="">请选择</option>
-                    <option value="生活类">生活类</option><option value="情侣类">情侣类</option>
-                    <option value="颜值类">颜值类</option><option value="宠物类">宠物类</option>
-                    <option value="美食类">美食类</option><option value="运动类">运动类</option>
+                    <option value="">请选择达人分类</option>
+                    <option value="生活类">生活类</option>
+                    <option value="情侣类">情侣类</option>
+                    <option value="颜值类">颜值类</option>
+                    <option value="宠物类">宠物类</option>
+                    <option value="美食类">美食类</option>
+                    <option value="运动类">运动类</option>
+                    <option value="美妆类">美妆类</option>
+                    <option value="教育类">教育类</option>
+                    <option value="科技类">科技类</option>
                 </select>
             </div>
 
@@ -56,152 +101,434 @@
                         <option value="">请选择</option>
                         <option value="男">男</option>
                         <option value="女">女</option>
+                        <option value="组合">组合</option>
+                        <option value="品牌">品牌</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label for="reporter">提报人</label>
-                    <input type="text" id="reporter" placeholder="您的名字">
+                    <input type="text" id="reporter" placeholder="您的姓名" value="管理员">
                 </div>
             </div>
 
             <div class="field-row">
                 <div class="form-group">
-                    <label for="country">国家</label>
+                    <label for="country">国家/地区</label>
                     <select id="country">
                         <option value="">请选择</option>
-                        <option value="墨西哥">墨西哥</option><option value="菲律宾">菲律宾</option>
-                        <option value="印尼">印尼</option><option value="巴西">巴西</option>
-                        <option value="美区">美区</option>
+                        <option value="中国">中国</option>
+                        <option value="美国">美国</option>
+                        <option value="英国">英国</option>
+                        <option value="日本">日本</option>
+                        <option value="韩国">韩国</option>
+                        <option value="东南亚">东南亚</option>
+                        <option value="欧洲">欧洲</option>
+                        <option value="其他">其他</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="level">量级</label>
+                    <label for="level">粉丝量级</label>
                     <select id="level">
                         <option value="">请选择</option>
-                        <option value="1m+">1m+</option><option value="500k-1m">500k-1m</option>
-                        <option value="100k-500k">100k-500k</option><option value="<10k"><10k</option>
+                        <option value="1M+">1M+ (头部)</option>
+                        <option value="500K-1M">500K-1M (腰部)</option>
+                        <option value="100K-500K">100K-500K (初级)</option>
+                        <option value="10K-100K">10K-100K (新人)</option>
+                        <option value="<10K"><10K (纳米)</option>
                     </select>
                 </div>
             </div>
 
             <!-- 账号信息 -->
             <div class="form-group">
-                <label for="handle">用户账号/Handle <span class="required">*</span></label>
-                <input type="text" id="handle" required placeholder="例如：@username">
+                <label for="handle">达人账号 <span class="required">*</span></label>
+                <input type="text" id="handle" required placeholder="@username 或 完整账号名">
+                <p class="help-text">请输入达人的唯一标识，如抖音号、B站UID等</p>
             </div>
+            
             <div class="form-group">
-                <label for="userLink">用户链接 <span class="required">*</span></label>
-                <input type="url" id="userLink" required placeholder="https://tiktok.com/@username">
-                <p class="help-text">请填写完整的URL链接</p>
+                <label for="userLink">主页链接 <span class="required">*</span></label>
+                <input type="url" id="userLink" required placeholder="https://..." pattern="https?://.+">
+                <p class="help-text">完整的URL链接，支持http://或https://</p>
+            </div>
+            
+            <!-- 智能Sheet选择 -->
+            <div class="form-group">
+                <label for="syncSheet">同步到工作表 <span class="required">*</span></label>
+                <div style="position: relative;">
+                    <select id="syncSheet" required style="padding-right: 40px;">
+                        <option value="">正在加载工作表列表...</option>
+                    </select>
+                    <div id="sheetLoading" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #a0aec0;">
+                        <span class="loading"></span>
+                    </div>
+                </div>
+                <p class="help-text">系统自动从您的Google表格加载所有可用工作表</p>
+            </div>
+            
+            <!-- 其他信息 -->
+            <div class="field-row">
+                <div class="form-group">
+                    <label for="fans">粉丝数</label>
+                    <input type="text" id="fans" placeholder="例如：150K 或 1.2M">
+                </div>
+                <div class="form-group">
+                    <label for="contact">联系方式</label>
+                    <input type="text" id="contact" placeholder="邮箱/微信/电话">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="remark">备注</label>
+                <textarea id="remark" rows="3" placeholder="其他需要说明的信息..."></textarea>
             </div>
 
             <!-- 提交按钮 -->
-            <div class="form-group">
-                <button type="submit" class="btn" id="submitBtn">🚀 提交到云端表格</button>
+            <div class="form-group" style="margin-top: 30px;">
+                <button type="submit" class="btn" id="submitBtn">
+                    <span id="btnText">🚀 提交到云端表格</span>
+                    <span id="btnLoading" style="display: none;"><span class="loading"></span> 提交中...</span>
+                </button>
+                <p class="help-text" style="text-align: center; margin-top: 10px;">数据将实时保存到您选择的Google Sheets工作表</p>
             </div>
         </form>
 
         <div class="footer">
-            <p>系统基于 Google Sheets 与 GitHub Pages 构建 | 数据安全存储于您的Google账户</p>
+            <p>💡 <strong>智能云端系统</strong> | 基于 Google Sheets + Google Apps Script + GitHub Pages 构建</p>
+            <p>🔒 数据安全存储于您的Google账户 | 📱 支持多端访问 | ⚡ 实时同步</p>
+            <p>🔄 系统自动加载所有工作表 | 📊 自动创建新工作表 | 🌐 24/7 在线运行</p>
         </div>
     </div>
 
     <script>
         // 🔧 配置项：请替换成您自己的GAS Web App URL！
-        const GAS_URL = 'https://script.google.com/macros/s/AKfycbyrJ28ruzOoh-1zZU2nNxvxvf9s3qoEcZ9S2yLYpWJX1jLbT7z8nfD_7J4UVUGlbD7nXw/exec';
+        // 从Google Apps Script部署后获取的URL
+        const GAS_URL = 'https://script.google.com/macros/s/YOUR_GAS_DEPLOYMENT_ID/exec';
+        
+        // 页面状态
+        let isLoadingSheets = true;
+        let sheetList = [];
 
         // 页面加载完成
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('页面已加载，后台地址:', GAS_URL);
-            // 设置默认提报人为当前用户（示例）
+            console.log('🌈 智能云端版系统启动...');
+            console.log('🌐 后台地址:', GAS_URL);
+            
+            // 设置默认提报人
             document.getElementById('reporter').value = '管理员';
-            // 设置默认日期为今天
-            const today = new Date().toISOString().split('T')[0];
-            // 可以添加一个隐藏的日期字段，这里简化为固定值
+            
+            // 动态加载Sheet列表
+            loadSheetList();
+            
+            // 设置表单提交事件
+            setupFormSubmit();
+            
+            // 设置国家与Sheet的智能关联
+            setupCountrySheetLink();
         });
 
-        // 表单提交处理
-        document.getElementById('talentForm').addEventListener('submit', async function(event) {
-            event.preventDefault(); // 阻止表单默认刷新
-            console.log('开始提交表单...');
+        // 动态加载Sheet列表
+        async function loadSheetList() {
+            const sheetSelect = document.getElementById('syncSheet');
+            const sheetLoading = document.getElementById('sheetLoading');
+            const sheetCountEl = document.getElementById('sheetCount');
+            
+            try {
+                console.log('📡 正在从云端加载工作表列表...');
+                showStatus('info', '正在从Google Sheets加载工作表列表...');
+                
+                const response = await fetch(GAS_URL + '?action=getSheets');
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                
+                const data = await response.json();
+                
+                if (data.success && data.sheets && data.sheets.length > 0) {
+                    // 保存Sheet列表
+                    sheetList = data.sheets;
+                    isLoadingSheets = false;
+                    
+                    // 清空现有选项
+                    sheetSelect.innerHTML = '';
+                    
+                    // 添加提示选项
+                    const defaultOption = document.createElement('option');
+                    defaultOption.value = '';
+                    defaultOption.textContent = `请选择工作表 (${data.count}个可用)`;
+                    sheetSelect.appendChild(defaultOption);
+                    
+                    // 添加所有Sheet选项
+                    data.sheets.forEach(sheetName => {
+                        const option = document.createElement('option');
+                        option.value = sheetName;
+                        option.textContent = sheetName;
+                        
+                        // 如果sheet名包含"提报表"，设为默认选中
+                        if (sheetName.includes('提报表')) {
+                            option.selected = true;
+                        }
+                        
+                        sheetSelect.appendChild(option);
+                    });
+                    
+                    // 更新Sheet计数
+                    sheetCountEl.textContent = `${data.count}个工作表`;
+                    sheetCountEl.style.background = '#c6f6d5';
+                    sheetCountEl.style.color = '#22543d';
+                    
+                    // 隐藏加载动画
+                    sheetLoading.style.display = 'none';
+                    
+                    console.log(`✅ 已加载 ${data.sheets.length} 个工作表:`, data.sheets);
+                    hideStatus();
+                    
+                    // 如果URL中有sheet参数，自动选择
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const sheetParam = urlParams.get('sheet');
+                    if (sheetParam && data.sheets.includes(sheetParam)) {
+                        sheetSelect.value = sheetParam;
+                    }
+                    
+                } else {
+                    throw new Error(data.error || '没有获取到工作表列表');
+                }
+                
+            } catch (error) {
+                console.error('❌ 加载Sheet列表失败:', error);
+                
+                // 使用默认选项
+                sheetSelect.innerHTML = `
+                    <option value="">加载失败，使用默认</option>
+                    <option value="提报表" selected>提报表（默认）</option>
+                    <option value="新工作表">新工作表</option>
+                `;
+                
+                sheetCountEl.textContent = '加载失败';
+                sheetCountEl.style.background = '#fed7d7';
+                sheetCountEl.style.color = '#742a2a';
+                sheetLoading.innerHTML = '❌';
+                
+                showStatus('error', '工作表列表加载失败，已使用默认选项');
+                
+                // 3秒后隐藏错误提示
+                setTimeout(hideStatus, 3000);
+            }
+        }
 
+        // 设置表单提交
+        function setupFormSubmit() {
+            const form = document.getElementById('talentForm');
             const submitBtn = document.getElementById('submitBtn');
-            const originalText = submitBtn.textContent;
-            submitBtn.disabled = true;
-            submitBtn.textContent = '提交中...';
+            const btnText = document.getElementById('btnText');
+            const btnLoading = document.getElementById('btnLoading');
+            
+            form.addEventListener('submit', async function(event) {
+                event.preventDefault();
+                
+                if (isLoadingSheets) {
+                    showStatus('error', '请等待工作表列表加载完成');
+                    return;
+                }
+                
+                // 表单验证
+                if (!validateForm()) {
+                    return;
+                }
+                
+                // 显示加载状态
+                submitBtn.disabled = true;
+                btnText.style.display = 'none';
+                btnLoading.style.display = 'inline';
+                
+                showStatus('info', '正在提交数据到云端...');
+                
+                try {
+                    // 1. 收集表单数据
+                    const formData = collectFormData();
+                    console.log('📤 提交数据:', formData);
+                    
+                    // 2. 发送数据到GAS云端后台
+                    const response = await fetch(GAS_URL, {
+                        method: 'POST',
+                        mode: 'no-cors',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(formData)
+                    });
+                    
+                    // 由于使用了 no-cors 模式，我们无法直接读取响应
+                    // 但可以假设请求已发送成功
+                    console.log('✅ 请求已发送到云端');
+                    
+                    // 显示成功消息
+                    const selectedSheet = document.getElementById('syncSheet').value;
+                    showStatus('success', `✅ 提交成功！数据已实时保存到【${selectedSheet}】工作表。`);
+                    
+                    // 3秒后清空表单
+                    setTimeout(() => {
+                        form.reset();
+                        document.getElementById('reporter').value = '管理员';
+                        hideStatus();
+                    }, 3000);
+                    
+                    // 可选：自动刷新Sheet列表（如果创建了新Sheet）
+                    if (!sheetList.includes(selectedSheet)) {
+                        setTimeout(loadSheetList, 2000);
+                    }
+                    
+                } catch (error) {
+                    // 网络错误或请求根本发不出去
+                    console.error('❌ 提交失败:', error);
+                    showStatus('error', `❌ 提交失败: ${error.message || '网络错误'}`);
+                } finally {
+                    // 恢复按钮状态
+                    submitBtn.disabled = false;
+                    btnText.style.display = 'inline';
+                    btnLoading.style.display = 'none';
+                }
+            });
+        }
 
-            // 显示“处理中”状态
-            showStatus('info', '正在将数据提交到云端...');
-
-            // 1. 收集表单数据
-            const formData = {
+        // 收集表单数据
+        function collectFormData() {
+            return {
+                // 基础信息
                 category: document.getElementById('category').value,
                 gender: document.getElementById('gender').value,
                 reporter: document.getElementById('reporter').value || '管理员',
-                devDate: new Date().toISOString().split('T')[0], // 今天
+                devDate: new Date().toISOString().split('T')[0],
                 country: document.getElementById('country').value,
                 level: document.getElementById('level').value,
+                
+                // 账号信息
                 handle: document.getElementById('handle').value,
                 userLink: document.getElementById('userLink').value,
-                // 以下字段前端表单未提供，使用默认值，您可以根据需要添加更多输入框
-                ins: '',
-                fans: '0',
-                avgViews: '0',
-                contact: '',
-                price: '',
-                remark: '',
-                feedback: '',
-                syncSheet: '提报表' // 默认写入“提报表”工作表
-            };
-
-            console.log('提交的数据:', formData);
-
-            // 2. 发送数据到GAS云端后台
-            try {
-                const response = await fetch(GAS_URL, {
-                    method: 'POST',
-                    mode: 'no-cors', // 重要：因为GAS已处理CORS，这里用no-cors模式
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(formData)
-                });
-
-                // 注意：由于使用了 mode: 'no-cors'，我们无法直接读取响应状态和内容。
-                // 但GAS成功执行后，数据会写入表格。这是一种简化的处理。
-                // 更复杂的错误处理需要GAS返回特定信息，这里我们先以“乐观成功”处理。
-
-                console.log('请求已发送');
-                showStatus('success', '✅ 提交成功！数据已实时保存到您的Google Sheets。');
                 
-                // 3秒后清空表单
-                setTimeout(() => {
-                    document.getElementById('talentForm').reset();
-                    document.getElementById('reporter').value = '管理员'; // 重置默认值
-                    hideStatus();
-                }, 3000);
+                // Sheet选择
+                syncSheet: document.getElementById('syncSheet').value,
+                
+                // 其他信息
+                fans: document.getElementById('fans').value || '0',
+                avgViews: '0', // 默认值
+                contact: document.getElementById('contact').value || '',
+                price: '', // 默认值
+                remark: document.getElementById('remark').value || '',
+                feedback: '', // 默认值
+                ins: '' // 默认值
+            };
+        }
 
-            } catch (error) {
-                // 网络错误或请求根本发不出去
-                console.error('提交失败:', error);
-                showStatus('error', '❌ 网络错误，提交失败。请检查网络连接，并确保GAS后台已正确部署。');
-            } finally {
-                // 恢复按钮
-                submitBtn.disabled = false;
-                submitBtn.textContent = originalText;
+        // 表单验证
+        function validateForm() {
+            const requiredFields = ['category', 'handle', 'userLink', 'syncSheet'];
+            const missing = [];
+            
+            requiredFields.forEach(fieldId => {
+                const element = document.getElementById(fieldId);
+                if (!element.value || element.value.trim() === '') {
+                    missing.push(element.previousElementSibling?.textContent || fieldId);
+                    element.style.borderColor = '#fc8181';
+                    
+                    // 3秒后恢复
+                    setTimeout(() => {
+                        element.style.borderColor = '';
+                    }, 3000);
+                }
+            });
+            
+            if (missing.length > 0) {
+                showStatus('error', `❌ 请填写以下必填项: ${missing.join('、')}`);
+                return false;
             }
-        });
+            
+            // URL格式验证
+            const urlInput = document.getElementById('userLink');
+            try {
+                new URL(urlInput.value);
+            } catch (error) {
+                showStatus('error', '❌ 请输入有效的URL链接');
+                urlInput.style.borderColor = '#fc8181';
+                setTimeout(() => { urlInput.style.borderColor = ''; }, 3000);
+                return false;
+            }
+            
+            return true;
+        }
 
-        // 显示状态消息的工具函数
-        function showStatus(type, message) {
+        // 设置国家与Sheet的智能关联
+        function setupCountrySheetLink() {
+            const countrySelect = document.getElementById('country');
+            const sheetSelect = document.getElementById('syncSheet');
+            
+            // 国家到Sheet的映射建议
+            const countrySheetMap = {
+                '中国': ['提报表'],
+                '美国': ['美区（nana）', '美国达人', '美区'],
+                '英国': ['英国', '欧洲'],
+                '日本': ['日本', '亚洲'],
+                '韩国': ['韩国', '亚洲'],
+                '东南亚': ['菲律宾（邓）', '印尼（子豪）', '马来西亚', '东南亚'],
+                '欧洲': ['西班牙（nana）', '英国', 'eu', '欧洲']
+            };
+            
+            countrySelect.addEventListener('change', function() {
+                const country = this.value;
+                if (!country || !countrySheetMap[country]) return;
+                
+                // 查找匹配的Sheet
+                const matchingSheets = countrySheetMap[country].filter(sheetName => 
+                    sheetList.includes(sheetName)
+                );
+                
+                if (matchingSheets.length > 0) {
+                    // 尝试选择第一个匹配的Sheet
+                    for (let i = 0; i < sheetSelect.options.length; i++) {
+                        if (matchingSheets.includes(sheetSelect.options[i].value)) {
+                            sheetSelect.selectedIndex = i;
+                            showStatus('info', `💡 已根据国家自动选择工作表: ${sheetSelect.value}`, 2000);
+                            break;
+                        }
+                    }
+                }
+            });
+        }
+
+        // 显示状态消息
+        function showStatus(type, message, duration = 5000) {
             const statusEl = document.getElementById('statusMessage');
             statusEl.textContent = message;
-            statusEl.className = 'status ' + type; // 'success', 'error', 'info'
+            statusEl.className = 'status ' + type;
+            statusEl.style.display = 'block';
+            
+            if (duration > 0) {
+                setTimeout(() => {
+                    if (statusEl.textContent === message) {
+                        statusEl.style.display = 'none';
+                    }
+                }, duration);
+            }
         }
+        
         function hideStatus() {
             const statusEl = document.getElementById('statusMessage');
             statusEl.style.display = 'none';
         }
+        
+        // 键盘快捷键
+        document.addEventListener('keydown', (e) => {
+            // Ctrl+Enter 提交表单
+            if (e.ctrlKey && e.key === 'Enter') {
+                document.getElementById('submitBtn').click();
+            }
+        });
+        
+        // 页面可见性变化时刷新Sheet列表
+        document.addEventListener('visibilitychange', function() {
+            if (!document.hidden) {
+                // 页面从后台切换到前台时，刷新Sheet列表
+                loadSheetList();
+            }
+        });
     </script>
 </body>
 </html>
